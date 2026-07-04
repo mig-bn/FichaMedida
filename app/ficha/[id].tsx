@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Text } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { obtenerFicha } from '../../src/services/storage';
 import { Ficha } from '../../src/types/ficha';
@@ -18,6 +18,16 @@ export default function VerFicha() {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <ActivityIndicator />
+      </View>
+    );
+  }
+
+  if (ficha === null) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <Text style={{ fontSize: 16, color: '#888', textAlign: 'center' }}>
+          Ficha no encontrada. Es posible que haya sido eliminada.
+        </Text>
       </View>
     );
   }

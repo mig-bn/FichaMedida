@@ -33,6 +33,7 @@ export function FichaForm({ ficha, onGuardado }: Props) {
     ficha?.valorTotal != null ? String(ficha.valorTotal) : ''
   );
   const [errorNombre, setErrorNombre] = useState(false);
+  const [guardando, setGuardando] = useState(false);
 
   async function guardar() {
     if (!esNombreValido(nombre)) {
@@ -40,6 +41,8 @@ export function FichaForm({ ficha, onGuardado }: Props) {
       return;
     }
     setErrorNombre(false);
+
+    if (guardando) return;
 
     const datos: NuevaFichaInput = {
       nombre: nombre.trim(),
@@ -53,11 +56,15 @@ export function FichaForm({ ficha, onGuardado }: Props) {
       valorTotal: parsearMedida(valorTotalTexto),
     };
 
+    setGuardando(true);
     try {
       const guardada = ficha ? await actualizarFicha(ficha.id, datos) : await crearFicha(datos);
       onGuardado(guardada);
     } catch (e) {
+      console.error(e);
       Alert.alert('Error al guardar', 'No se pudo guardar la ficha. Intenta de nuevo.');
+    } finally {
+      setGuardando(false);
     }
   }
 
@@ -87,7 +94,7 @@ export function FichaForm({ ficha, onGuardado }: Props) {
       </Pressable>
       {mostrarFecha && (
         <DateTimePicker
-          value={new Date(fecha)}
+          value={new Date(fecha + 'T00:00:00')}
           mode="date"
           onChange={(_evento, seleccionada) => {
             setMostrarFecha(false);
@@ -169,8 +176,12 @@ export function FichaForm({ ficha, onGuardado }: Props) {
         onChangeText={setValorTotalTexto}
       />
 
-      <Pressable style={styles.botonGuardar} onPress={guardar}>
-        <Text style={styles.botonGuardarTexto}>Guardar</Text>
+      <Pressable
+        style={[styles.botonGuardar, guardando && styles.botonGuardarDeshabilitado]}
+        onPress={guardar}
+        disabled={guardando}
+      >
+        <Text style={styles.botonGuardarTexto}>{guardando ? 'Guardando...' : 'Guardar'}</Text>
       </Pressable>
     </ScrollView>
   );
@@ -201,5 +212,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
+  botonGuardarDeshabilitado: { opacity: 0.6 },
   botonGuardarTexto: { color: '#fff', fontSize: 17, fontWeight: '700' },
 });
