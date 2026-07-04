@@ -110,4 +110,8 @@ describe('duplicarFicha', () => {
     expect(copia.nombre).toBe(original.nombre);
     expect(copia.medidas).toEqual(original.medidas);
   });
+
+  it('lanza error si la ficha no existe', async () => {
+    await expect(duplicarFicha('no-existe')).rejects.toThrow();
+  });
 });
