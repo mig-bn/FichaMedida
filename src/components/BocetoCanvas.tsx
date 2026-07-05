@@ -29,8 +29,13 @@ function construirPath(puntos: Punto[], ancho: number, alto: number): string {
 }
 
 export function BocetoCanvas({ boceto, onChange, contextura }: Props) {
-  const [ancho, setAncho] = useState(0);
-  const alto = ancho / ASPECTO;
+  const [contW, setContW] = useState(0);
+  const [contH, setContH] = useState(0);
+
+  // Caja de dibujo: el rectángulo más grande con el aspecto de la silueta
+  // (ASPECTO = ANCHO_VIEWBOX/ALTO_VIEWBOX) que cabe dentro del contenedor.
+  const boxAncho = contW > 0 && contH > 0 ? Math.min(contW, contH * ASPECTO) : 0;
+  const boxAlto = boxAncho > 0 ? boxAncho / ASPECTO : 0;
 
   const [trazoEnCurso, setTrazoEnCurso] = useState<Punto[]>([]);
 
@@ -41,13 +46,14 @@ export function BocetoCanvas({ boceto, onChange, contextura }: Props) {
   const bocetoRef = useRef(boceto);
   const onChangeRef = useRef(onChange);
 
-  anchoRef.current = ancho;
-  altoRef.current = alto;
+  anchoRef.current = boxAncho;
+  altoRef.current = boxAlto;
   bocetoRef.current = boceto;
   onChangeRef.current = onChange;
 
   const onLayout = (evt: LayoutChangeEvent) => {
-    setAncho(evt.nativeEvent.layout.width);
+    setContW(evt.nativeEvent.layout.width);
+    setContH(evt.nativeEvent.layout.height);
   };
 
   function agregarPunto(locationX: number, locationY: number) {
@@ -107,24 +113,24 @@ export function BocetoCanvas({ boceto, onChange, contextura }: Props) {
   };
 
   return (
-    <View>
+    <View style={styles.raiz}>
       <View style={styles.contenedor} onLayout={onLayout}>
-        {ancho > 0 && (
-          <View style={{ width: ancho, height: alto }} {...panResponder.panHandlers}>
+        {boxAncho > 0 && boxAlto > 0 && (
+          <View style={{ width: boxAncho, height: boxAlto }} {...panResponder.panHandlers}>
             <View style={StyleSheet.absoluteFill} pointerEvents="none">
               <Silueta contextura={contextura} />
             </View>
             <Svg
-              width={ancho}
-              height={alto}
-              viewBox={`0 0 ${ancho} ${alto}`}
+              width={boxAncho}
+              height={boxAlto}
+              viewBox={`0 0 ${boxAncho} ${boxAlto}`}
               style={StyleSheet.absoluteFill}
               pointerEvents="none"
             >
               {boceto.trazos.map((trazo, indice) => (
                 <Path
                   key={indice}
-                  d={construirPath(trazo.puntos, ancho, alto)}
+                  d={construirPath(trazo.puntos, boxAncho, boxAlto)}
                   stroke={trazo.color}
                   strokeWidth={trazo.ancho}
                   fill="none"
@@ -134,7 +140,7 @@ export function BocetoCanvas({ boceto, onChange, contextura }: Props) {
               ))}
               {trazoEnCurso.length > 0 && (
                 <Path
-                  d={construirPath(trazoEnCurso, ancho, alto)}
+                  d={construirPath(trazoEnCurso, boxAncho, boxAlto)}
                   stroke={COLOR_ACTUAL}
                   strokeWidth={ANCHO_ACTUAL}
                   fill="none"
@@ -159,8 +165,13 @@ export function BocetoCanvas({ boceto, onChange, contextura }: Props) {
 }
 
 const styles = StyleSheet.create({
+  raiz: {
+    flex: 1,
+  },
   contenedor: {
-    width: '100%',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   barraHerramientas: {
     flexDirection: 'row',

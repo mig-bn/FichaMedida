@@ -101,6 +101,12 @@ export async function duplicarFicha(id: string): Promise<Ficha> {
   if (!original) {
     throw new Error(`Ficha ${id} no existe`);
   }
-  const { id: _id, creadoEn: _creadoEn, actualizadoEn: _actualizadoEn, ...resto } = original;
+  const {
+    id: _id,
+    creadoEn: _creadoEn,
+    actualizadoEn: _actualizadoEn,
+    schemaVersion: _schemaVersion,
+    ...resto
+  } = original;
   return crearFicha(resto);
 }
