@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { View, TextInput, FlatList, Text, Pressable, StyleSheet, Alert } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { listarFichas } from '../src/services/storage';
 import { exportarTodasLasFichas } from '../src/services/export';
@@ -8,6 +9,7 @@ import { FichaListItem } from '../src/components/FichaListItem';
 
 export default function Index() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [fichas, setFichas] = useState<Ficha[]>([]);
   const [busqueda, setBusqueda] = useState('');
 
@@ -65,12 +67,16 @@ export default function Index() {
         <FlatList
           data={filtradas}
           keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
           renderItem={({ item }) => (
             <FichaListItem ficha={item} onPress={() => router.push(`/ficha/${item.id}`)} />
           )}
         />
       )}
-      <Pressable style={styles.fab} onPress={() => router.push('/ficha/nueva')}>
+      <Pressable
+        style={[styles.fab, { bottom: insets.bottom + 20 }]}
+        onPress={() => router.push('/ficha/nueva')}
+      >
         <Text style={styles.fabTexto}>+</Text>
       </Pressable>
     </View>
@@ -92,7 +98,6 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    bottom: 30,
     width: 56,
     height: 56,
     borderRadius: 28,

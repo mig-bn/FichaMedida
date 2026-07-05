@@ -11,7 +11,13 @@ export default function VerFicha() {
   const [ficha, setFicha] = useState<Ficha | null | undefined>(undefined);
 
   useEffect(() => {
-    obtenerFicha(id).then(setFicha);
+    let activo = true;
+    obtenerFicha(id).then((f) => {
+      if (activo) setFicha(f);
+    });
+    return () => {
+      activo = false;
+    };
   }, [id]);
 
   if (ficha === undefined) {

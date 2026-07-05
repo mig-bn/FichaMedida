@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ficha, Tela, crearMedidasVacias } from '../types/ficha';
 import { esNombreValido, parsearMedida } from '../utils/validation';
 import {
@@ -27,6 +28,7 @@ type Props = {
 };
 
 export function FichaForm({ ficha, onGuardado, onEliminado }: Props) {
+  const insets = useSafeAreaInsets();
   const [nombre, setNombre] = useState(ficha?.nombre ?? '');
   const [cliente, setCliente] = useState(ficha?.cliente ?? '');
   const [referencia, setReferencia] = useState(ficha?.referencia ?? '');
@@ -111,7 +113,9 @@ export function FichaForm({ ficha, onGuardado, onEliminado }: Props) {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.contenedor}>
+    <ScrollView
+      contentContainerStyle={[styles.contenedor, { paddingBottom: insets.bottom + 28 }]}
+    >
       <Text style={styles.etiqueta}>Nombre *</Text>
       <TextInput
         style={[styles.input, errorNombre && styles.inputError]}
@@ -266,7 +270,7 @@ const styles = StyleSheet.create({
   },
   botonGuardarDeshabilitado: { opacity: 0.6 },
   botonGuardarTexto: { color: '#fff', fontSize: 17, fontWeight: '700' },
-  filaAcciones: { flexDirection: 'row', gap: 12, marginTop: 16, marginBottom: 60 },
+  filaAcciones: { flexDirection: 'row', gap: 12, marginTop: 16 },
   botonSecundario: {
     flex: 1,
     padding: 12,
