@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
-import { View, TextInput, FlatList, Text, Pressable, StyleSheet } from 'react-native';
+import { View, TextInput, FlatList, Text, Pressable, StyleSheet, Alert } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { listarFichas } from '../src/services/storage';
+import { exportarTodasLasFichas } from '../src/services/export';
 import { Ficha } from '../src/types/ficha';
 import { FichaListItem } from '../src/components/FichaListItem';
 
@@ -30,6 +31,18 @@ export default function Index() {
 
   return (
     <View style={styles.contenedor}>
+      <Pressable
+        style={styles.botonExportar}
+        onPress={async () => {
+          try {
+            await exportarTodasLasFichas();
+          } catch (e) {
+            Alert.alert('Error al exportar', 'No se pudo generar o compartir el archivo.');
+          }
+        }}
+      >
+        <Text style={styles.botonExportarTexto}>Exportar todo</Text>
+      </Pressable>
       <TextInput
         placeholder="Buscar por nombre o cliente"
         value={busqueda}
@@ -81,4 +94,13 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   fabTexto: { color: '#fff', fontSize: 30, lineHeight: 32 },
+  botonExportar: {
+    margin: 12,
+    marginBottom: 0,
+    backgroundColor: '#2f6fed',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  botonExportarTexto: { color: '#fff', fontWeight: '700', fontSize: 15 },
 });
