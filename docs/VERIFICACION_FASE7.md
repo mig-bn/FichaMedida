@@ -2,7 +2,7 @@
 
 Estado del código al cerrar la construcción automatizada:
 - `npx tsc --noEmit` → **0 errores**
-- `npx jest` → **18/18 tests pasando** (uuid, validación, storage, export)
+- `npx jest` → **21/21 tests pasando** (uuid, validación, storage, export)
 - Revisión final de rama completa (Opus): **v1-ready, sin hallazgos Critical ni Important**
 
 Las tareas de código (Fases 0–5) están completas y revisadas. Lo que queda es
@@ -66,6 +66,44 @@ teléfono, porque en el entorno de construcción no hay simulador ni Expo Go.
       de pago (verificado en la revisión final — todas son offline/gratis).
 - [ ] La app nunca pide permisos de red obligatorios (solo compartir archivos,
       opcional y bajo demanda).
+
+---
+
+## Verificación v2 (boceto, contextura, cm)
+
+Checklist manual en dispositivo para lo agregado en la v2: `contextura`,
+`boceto` (silueta + dibujo a mano alzada) y el sufijo fijo "cm" en Medidas/Tiro.
+
+- [ ] Tocar **+** (nueva ficha): el paso previo pide **Nombre**, **Referencia**,
+      **Fecha** y **Contextura** (segmentado Femenina/Masculina, con
+      **Femenina** seleccionada por defecto).
+- [ ] Dejar el **Nombre vacío** y continuar: la ficha se crea con el nombre
+      genérico **"Ficha sin nombre"**.
+- [ ] Dejar la **Fecha** sin tocar: se usa la fecha de **hoy** por defecto.
+- [ ] En el formulario, los campos de **Medidas** (los 29) y el campo **Tiro**
+      muestran un sufijo fijo **"cm"** junto al input, que **no desaparece**
+      al escribir un valor (es un texto aparte, no un placeholder).
+- [ ] Cambiar entre las pestañas **Ficha** y **Boceto** dentro del formulario:
+      ambas conservan sus datos al alternar.
+- [ ] En la pestaña **Boceto**: la silueta de fondo corresponde a la
+      **contextura** elegida (femenina o masculina).
+- [ ] Dibujar con el dedo sobre la silueta: el trazo sigue el dedo en tiempo
+      real.
+- [ ] **Deshacer**: quita el último trazo dibujado (uno por uno).
+- [ ] **Borrar todo**: pide **confirmación** antes de vaciar el boceto
+      completo.
+- [ ] Guardar desde la pestaña **Ficha** o desde **Boceto** indistintamente:
+      ambas usan el mismo botón "Guardar" y persisten los mismos datos.
+- [ ] Cerrar la app por completo (no minimizar) y reabrir la ficha: el
+      **boceto** (los trazos dibujados) y la **contextura** siguen ahí.
+- [ ] Cambiar la **Contextura** de Femenina a Masculina en una ficha existente:
+      la silueta de fondo del boceto cambia de inmediato.
+- [ ] **Exportar todo**: el `.json` generado incluye `"schemaVersion": 2`, y
+      cada ficha del arreglo `fichas` trae `contextura` y `boceto.trazos`.
+- [ ] Abrir una ficha creada **antes de la v2** (formato v1, sin `contextura`
+      ni `boceto` guardados): abre sin errores, se muestra como
+      **Femenina** y con el boceto **vacío** (migración transparente vía
+      `normalizarFicha`).
 
 ---
 
