@@ -1,19 +1,34 @@
+import { Image, ImageSourcePropType, StyleSheet } from 'react-native';
 import { Contextura } from '../../types/ficha';
-import { SiluetaFemenina } from './SiluetaFemenina';
-import { SiluetaMasculina } from './SiluetaMasculina';
 
-// Aspecto (ancho x alto) compartido por ambas siluetas. El canvas de boceto
-// (tarea siguiente) debe usar este mismo viewBox para que las coordenadas
-// normalizadas 0..1 se alineen con el dibujo de fondo.
-export const VIEWBOX = '0 0 100 130';
-export const ANCHO_VIEWBOX = 100;
-export const ALTO_VIEWBOX = 130;
-export const ASPECTO = ANCHO_VIEWBOX / ALTO_VIEWBOX;
+// Relación de aspecto (ancho / alto) real de cada imagen de silueta.
+// El canvas de boceto usa este aspecto (según la contextura) para dimensionar
+// la caja de dibujo, de modo que las coordenadas normalizadas 0..1 calcen sobre
+// el cuerpo. Valores tomados de las dimensiones reales de los PNG:
+//   femenina.png = 1254 x 1254   ->  1.0000
+//   masculina.png = 1313 x 1198  ->  1.0960
+const ASPECTOS: Record<Contextura, number> = {
+  femenina: 1254 / 1254,
+  masculina: 1313 / 1198,
+};
+
+export function aspectoDe(contextura: Contextura): number {
+  return ASPECTOS[contextura];
+}
+
+const IMAGENES: Record<Contextura, ImageSourcePropType> = {
+  femenina: require('../../../assets/siluetas/femenina.png'),
+  masculina: require('../../../assets/siluetas/masculina.png'),
+};
 
 type Props = {
   contextura: Contextura;
 };
 
 export function Silueta({ contextura }: Props) {
-  return contextura === 'masculina' ? <SiluetaMasculina /> : <SiluetaFemenina />;
+  return <Image source={IMAGENES[contextura]} resizeMode="contain" style={styles.imagen} />;
 }
+
+const styles = StyleSheet.create({
+  imagen: { width: '100%', height: '100%' },
+});

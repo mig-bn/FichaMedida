@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Alert, LayoutChangeEvent, PanResponder, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Boceto, Contextura, Punto, Trazo } from '../types/ficha';
-import { ASPECTO, Silueta } from './siluetas/Silueta';
+import { aspectoDe, Silueta } from './siluetas/Silueta';
 
 // Únicos valores stateful a futuro (selector de color/grosor). Por ahora fijos.
 const COLOR_ACTUAL = '#111';
@@ -32,10 +32,12 @@ export function BocetoCanvas({ boceto, onChange, contextura }: Props) {
   const [contW, setContW] = useState(0);
   const [contH, setContH] = useState(0);
 
-  // Caja de dibujo: el rectángulo más grande con el aspecto de la silueta
-  // (ASPECTO = ANCHO_VIEWBOX/ALTO_VIEWBOX) que cabe dentro del contenedor.
-  const boxAncho = contW > 0 && contH > 0 ? Math.min(contW, contH * ASPECTO) : 0;
-  const boxAlto = boxAncho > 0 ? boxAncho / ASPECTO : 0;
+  // Caja de dibujo: el rectángulo más grande con el aspecto de la silueta de la
+  // contextura actual que cabe dentro del contenedor. Cada silueta (imagen)
+  // tiene su propio aspecto, así que se toma según la contextura.
+  const aspecto = aspectoDe(contextura);
+  const boxAncho = contW > 0 && contH > 0 ? Math.min(contW, contH * aspecto) : 0;
+  const boxAlto = boxAncho > 0 ? boxAncho / aspecto : 0;
 
   const [trazoEnCurso, setTrazoEnCurso] = useState<Punto[]>([]);
 
