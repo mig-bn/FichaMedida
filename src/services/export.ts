@@ -5,7 +5,7 @@ import { listarFichas } from './storage';
 
 export function construirExportPayload(fichas: Ficha[]): ExportPayload {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     exportadoEn: new Date().toISOString(),
     fichas,
   };

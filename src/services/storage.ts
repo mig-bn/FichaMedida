@@ -1,11 +1,33 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ficha } from '../types/ficha';
+import { Ficha, Contextura, Boceto } from '../types/ficha';
 import { generarUUID } from '../utils/uuid';
 
 const INDICE_KEY = 'indice_fichas';
 const fichaKey = (id: string) => `ficha:${id}`;
 
 export type NuevaFichaInput = Omit<Ficha, 'id' | 'schemaVersion' | 'creadoEn' | 'actualizadoEn'>;
+
+const CONTEXTURAS_VALIDAS: Contextura[] = ['femenina', 'masculina'];
+
+/**
+ * Normaliza una ficha leída de almacenamiento (posiblemente de una versión
+ * anterior del esquema) rellenando defaults para campos nuevos y forzando
+ * schemaVersion a la versión actual (2).
+ */
+export function normalizarFicha(raw: any): Ficha {
+  const contextura: Contextura =
+    raw && CONTEXTURAS_VALIDAS.includes(raw.contextura) ? raw.contextura : 'femenina';
+
+  const boceto: Boceto =
+    raw && raw.boceto && Array.isArray(raw.boceto.trazos) ? raw.boceto : { trazos: [] };
+
+  return {
+    ...raw,
+    contextura,
+    boceto,
+    schemaVersion: 2,
+  };
+}
 
 async function obtenerIndice(): Promise<string[]> {
   const raw = await AsyncStorage.getItem(INDICE_KEY);
@@ -21,7 +43,7 @@ export async function crearFicha(datos: NuevaFichaInput): Promise<Ficha> {
   const ficha: Ficha = {
     ...datos,
     id: generarUUID(),
-    schemaVersion: 1,
+    schemaVersion: 2,
     creadoEn: ahora,
     actualizadoEn: ahora,
   };
@@ -33,7 +55,7 @@ export async function crearFicha(datos: NuevaFichaInput): Promise<Ficha> {
 
 export async function obtenerFicha(id: string): Promise<Ficha | null> {
   const raw = await AsyncStorage.getItem(fichaKey(id));
-  return raw ? JSON.parse(raw) : null;
+  return raw ? normalizarFicha(JSON.parse(raw)) : null;
 }
 
 export async function listarFichas(): Promise<Ficha[]> {

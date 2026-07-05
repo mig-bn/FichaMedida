@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ficha, Tela, crearMedidasVacias } from '../types/ficha';
+import { Ficha, Tela, crearMedidasVacias, crearBocetoVacio } from '../types/ficha';
 import { esNombreValido, parsearMedida } from '../utils/validation';
 import {
   crearFicha,
@@ -63,6 +63,8 @@ export function FichaForm({ ficha, onGuardado, onEliminado }: Props) {
       telas: telas.filter((t) => t.tipo.trim() !== ''),
       colores: colores.filter((c) => c.trim() !== ''),
       valorTotal: parsearMedida(valorTotalTexto),
+      contextura: ficha?.contextura ?? 'femenina',
+      boceto: ficha?.boceto ?? crearBocetoVacio(),
     };
 
     setGuardando(true);

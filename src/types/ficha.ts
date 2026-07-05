@@ -32,9 +32,17 @@ export type Medidas = {
 
 export type Tela = { tipo: string; color?: string };
 
+export type Contextura = 'femenina' | 'masculina';
+
+export type Punto = { x: number; y: number };
+
+export type Trazo = { puntos: Punto[]; color: string; ancho: number };
+
+export type Boceto = { trazos: Trazo[] };
+
 export type Ficha = {
   id: string;
-  schemaVersion: 1;
+  schemaVersion: 2;
   nombre: string;
   cliente: string;
   referencia: string;
@@ -44,15 +52,21 @@ export type Ficha = {
   telas: Tela[];
   colores: string[];
   valorTotal: number | null;
+  contextura: Contextura;
+  boceto: Boceto;
   creadoEn: string;
   actualizadoEn: string;
 };
 
 export type ExportPayload = {
-  schemaVersion: 1;
+  schemaVersion: 2;
   exportadoEn: string;
   fichas: Ficha[];
 };
+
+export function crearBocetoVacio(): Boceto {
+  return { trazos: [] };
+}
 
 export function crearMedidasVacias(): Medidas {
   return {

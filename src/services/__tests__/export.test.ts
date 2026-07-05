@@ -13,12 +13,12 @@ jest.mock('../storage', () => ({
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { listarFichas } from '../storage';
-import { crearMedidasVacias } from '../../types/ficha';
+import { crearMedidasVacias, crearBocetoVacio } from '../../types/ficha';
 import { construirExportPayload, exportarTodasLasFichas } from '../export';
 
 const fichaDeEjemplo = {
   id: 'uuid-1',
-  schemaVersion: 1 as const,
+  schemaVersion: 2 as const,
   nombre: 'Ana Pérez',
   cliente: 'Ana Pérez',
   referencia: 'Vestido',
@@ -28,6 +28,8 @@ const fichaDeEjemplo = {
   telas: [],
   colores: [],
   valorTotal: null,
+  contextura: 'femenina' as const,
+  boceto: crearBocetoVacio(),
   creadoEn: '2026-07-01T00:00:00.000Z',
   actualizadoEn: '2026-07-01T00:00:00.000Z',
 };
@@ -35,7 +37,7 @@ const fichaDeEjemplo = {
 describe('construirExportPayload', () => {
   it('arma el payload con schemaVersion, timestamp y las fichas dadas', () => {
     const payload = construirExportPayload([fichaDeEjemplo]);
-    expect(payload.schemaVersion).toBe(1);
+    expect(payload.schemaVersion).toBe(2);
     expect(typeof payload.exportadoEn).toBe('string');
     expect(payload.fichas).toEqual([fichaDeEjemplo]);
   });
@@ -49,7 +51,7 @@ describe('exportarTodasLasFichas', () => {
 
     expect(FileSystem.writeAsStringAsync).toHaveBeenCalledWith(
       expect.stringContaining('file:///cache/'),
-      expect.stringContaining('"schemaVersion": 1')
+      expect.stringContaining('"schemaVersion": 2')
     );
     expect(Sharing.shareAsync).toHaveBeenCalled();
   });
