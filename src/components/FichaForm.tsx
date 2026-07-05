@@ -311,7 +311,7 @@ export function FichaForm({ ficha, onGuardado, onEliminado, inicial }: Props) {
           )}
         </ScrollView>
       ) : (
-        <View style={styles.contenedorBoceto}>
+        <View style={[styles.contenedorBoceto, { paddingBottom: insets.bottom + 16 }]}>
           <View style={styles.canvasBoceto}>
             <BocetoCanvas boceto={boceto} onChange={setBoceto} contextura={contextura} />
           </View>
