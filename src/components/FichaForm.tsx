@@ -11,15 +11,22 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ficha, Tela, crearMedidasVacias } from '../types/ficha';
 import { esNombreValido, parsearMedida } from '../utils/validation';
-import { crearFicha, actualizarFicha, NuevaFichaInput } from '../services/storage';
+import {
+  crearFicha,
+  actualizarFicha,
+  duplicarFicha,
+  eliminarFicha,
+  NuevaFichaInput,
+} from '../services/storage';
 import { MedidasTable } from './MedidasTable';
 
 type Props = {
   ficha: Ficha | null;
   onGuardado: (ficha: Ficha) => void;
+  onEliminado?: () => void;
 };
 
-export function FichaForm({ ficha, onGuardado }: Props) {
+export function FichaForm({ ficha, onGuardado, onEliminado }: Props) {
   const [nombre, setNombre] = useState(ficha?.nombre ?? '');
   const [cliente, setCliente] = useState(ficha?.cliente ?? '');
   const [referencia, setReferencia] = useState(ficha?.referencia ?? '');
@@ -66,6 +73,41 @@ export function FichaForm({ ficha, onGuardado }: Props) {
     } finally {
       setGuardando(false);
     }
+  }
+
+  async function duplicar() {
+    if (!ficha) return;
+    try {
+      const copia = await duplicarFicha(ficha.id);
+      onGuardado(copia);
+    } catch (e) {
+      console.error(e);
+      Alert.alert('Error', 'No se pudo duplicar la ficha.');
+    }
+  }
+
+  function confirmarEliminar() {
+    if (!ficha) return;
+    Alert.alert(
+      'Eliminar ficha',
+      '¿Seguro que quieres eliminar esta ficha? Esta acción no se puede deshacer.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await eliminarFicha(ficha.id);
+              onEliminado?.();
+            } catch (e) {
+              console.error(e);
+              Alert.alert('Error', 'No se pudo eliminar la ficha.');
+            }
+          },
+        },
+      ]
+    );
   }
 
   return (
@@ -183,6 +225,17 @@ export function FichaForm({ ficha, onGuardado }: Props) {
       >
         <Text style={styles.botonGuardarTexto}>{guardando ? 'Guardando...' : 'Guardar'}</Text>
       </Pressable>
+
+      {ficha && (
+        <View style={styles.filaAcciones}>
+          <Pressable style={styles.botonSecundario} onPress={duplicar}>
+            <Text style={styles.botonSecundarioTexto}>Duplicar ficha</Text>
+          </Pressable>
+          <Pressable style={styles.botonEliminar} onPress={confirmarEliminar}>
+            <Text style={styles.botonEliminarTexto}>Eliminar ficha</Text>
+          </Pressable>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -206,7 +259,6 @@ const styles = StyleSheet.create({
   agregar: { color: '#2f6fed', fontSize: 15, marginBottom: 16 },
   botonGuardar: {
     marginTop: 24,
-    marginBottom: 60,
     backgroundColor: '#2f6fed',
     padding: 14,
     borderRadius: 10,
@@ -214,4 +266,22 @@ const styles = StyleSheet.create({
   },
   botonGuardarDeshabilitado: { opacity: 0.6 },
   botonGuardarTexto: { color: '#fff', fontSize: 17, fontWeight: '700' },
+  filaAcciones: { flexDirection: 'row', gap: 12, marginTop: 16, marginBottom: 60 },
+  botonSecundario: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#2f6fed',
+    alignItems: 'center',
+  },
+  botonSecundarioTexto: { color: '#2f6fed', fontWeight: '700' },
+  botonEliminar: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 10,
+    backgroundColor: '#d33',
+    alignItems: 'center',
+  },
+  botonEliminarTexto: { color: '#fff', fontWeight: '700' },
 });

@@ -32,5 +32,11 @@ export default function VerFicha() {
     );
   }
 
-  return <FichaForm ficha={ficha} onGuardado={() => router.back()} />;
+  return (
+    <FichaForm
+      ficha={ficha}
+      onGuardado={() => router.back()}
+      onEliminado={() => router.back()}
+    />
+  );
 }

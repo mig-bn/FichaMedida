@@ -34,6 +34,10 @@ export default function Index() {
       <Pressable
         style={styles.botonExportar}
         onPress={async () => {
+          if (fichas.length === 0) {
+            Alert.alert('No hay fichas para exportar');
+            return;
+          }
           try {
             await exportarTodasLasFichas();
           } catch (e) {
@@ -51,7 +55,11 @@ export default function Index() {
       />
       {filtradas.length === 0 ? (
         <View style={styles.vacio}>
-          <Text style={styles.vacioTexto}>Aún no tienes fichas guardadas</Text>
+          <Text style={styles.vacioTexto}>
+            {busqueda.trim() !== ''
+              ? 'Sin resultados para tu búsqueda'
+              : 'Aún no tienes fichas guardadas'}
+          </Text>
         </View>
       ) : (
         <FlatList
