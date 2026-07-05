@@ -209,12 +209,15 @@ export function FichaForm({ ficha, onGuardado, onEliminado }: Props) {
       </Pressable>
 
       <Text style={styles.etiqueta}>Tiro</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="decimal-pad"
-        value={tiroTexto}
-        onChangeText={setTiroTexto}
-      />
+      <View style={styles.grupoInput}>
+        <TextInput
+          style={[styles.input, styles.inputTiro]}
+          keyboardType="decimal-pad"
+          value={tiroTexto}
+          onChangeText={setTiroTexto}
+        />
+        <Text style={styles.unidad}>cm</Text>
+      </View>
 
       <Text style={styles.etiqueta}>Valor Total</Text>
       <TextInput
@@ -258,6 +261,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   inputError: { borderColor: '#d33' },
+  grupoInput: { flexDirection: 'row', alignItems: 'center' },
+  inputTiro: { flex: 1 },
+  unidad: { fontSize: 15, color: '#666', marginLeft: 6 },
   textoError: { color: '#d33', fontSize: 13, marginTop: 4 },
   filaLista: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
   inputLista: { flex: 1 },

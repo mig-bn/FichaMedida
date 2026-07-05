@@ -16,15 +16,17 @@ export function MedidasTable({ medidas, onChange }: Props) {
           {grupo.campos.map((campo) => (
             <View key={campo.key} style={styles.fila}>
               <Text style={styles.etiqueta}>{campo.label}</Text>
-              <TextInput
-                style={styles.input}
-                keyboardType="decimal-pad"
-                value={medidas[campo.key] === null ? '' : String(medidas[campo.key])}
-                onChangeText={(texto) => {
-                  onChange({ ...medidas, [campo.key]: parsearMedida(texto) });
-                }}
-                placeholder="cm"
-              />
+              <View style={styles.grupoInput}>
+                <TextInput
+                  style={styles.input}
+                  keyboardType="decimal-pad"
+                  value={medidas[campo.key] === null ? '' : String(medidas[campo.key])}
+                  onChangeText={(texto) => {
+                    onChange({ ...medidas, [campo.key]: parsearMedida(texto) });
+                  }}
+                />
+                <Text style={styles.unidad}>cm</Text>
+              </View>
             </View>
           ))}
         </View>
@@ -43,6 +45,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   etiqueta: { fontSize: 15, flex: 1, paddingRight: 8 },
+  grupoInput: { flexDirection: 'row', alignItems: 'center' },
   input: {
     width: 90,
     borderWidth: 1,
@@ -52,4 +55,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'right',
   },
+  unidad: { fontSize: 15, color: '#666', marginLeft: 6 },
 });
