@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Alert, LayoutChangeEvent, PanResponder, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Boceto, Contextura, Punto, Trazo } from '../types/ficha';
+import { construirPathSvg } from '../utils/boceto';
 import { aspectoDe, Silueta } from './siluetas/Silueta';
 
 // Únicos valores stateful a futuro (selector de color/grosor). Por ahora fijos.
@@ -16,16 +17,6 @@ type Props = {
 
 function clamp(valor: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, valor));
-}
-
-function construirPath(puntos: Punto[], ancho: number, alto: number): string {
-  if (puntos.length === 0) return '';
-  const [primero, ...resto] = puntos;
-  let d = `M ${primero.x * ancho} ${primero.y * alto}`;
-  for (const punto of resto) {
-    d += ` L ${punto.x * ancho} ${punto.y * alto}`;
-  }
-  return d;
 }
 
 export function BocetoCanvas({ boceto, onChange, contextura }: Props) {
@@ -132,7 +123,7 @@ export function BocetoCanvas({ boceto, onChange, contextura }: Props) {
               {boceto.trazos.map((trazo, indice) => (
                 <Path
                   key={indice}
-                  d={construirPath(trazo.puntos, boxAncho, boxAlto)}
+                  d={construirPathSvg(trazo.puntos, boxAncho, boxAlto)}
                   stroke={trazo.color}
                   strokeWidth={trazo.ancho}
                   fill="none"
@@ -142,7 +133,7 @@ export function BocetoCanvas({ boceto, onChange, contextura }: Props) {
               ))}
               {trazoEnCurso.length > 0 && (
                 <Path
-                  d={construirPath(trazoEnCurso, boxAncho, boxAlto)}
+                  d={construirPathSvg(trazoEnCurso, boxAncho, boxAlto)}
                   stroke={COLOR_ACTUAL}
                   strokeWidth={ANCHO_ACTUAL}
                   fill="none"

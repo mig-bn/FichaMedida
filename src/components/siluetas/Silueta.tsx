@@ -1,4 +1,4 @@
-import { Image, ImageSourcePropType, StyleSheet } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
 import { Contextura } from '../../types/ficha';
 
 // Relación de aspecto (ancho / alto) real de cada imagen de silueta.
@@ -16,10 +16,14 @@ export function aspectoDe(contextura: Contextura): number {
   return ASPECTOS[contextura];
 }
 
-const IMAGENES: Record<Contextura, ImageSourcePropType> = {
+const IMAGENES: Record<Contextura, number> = {
   femenina: require('../../../assets/siluetas/femenina.png'),
   masculina: require('../../../assets/siluetas/masculina.png'),
 };
+
+export function imagenDe(contextura: Contextura): number {
+  return IMAGENES[contextura];
+}
 
 type Props = {
   contextura: Contextura;

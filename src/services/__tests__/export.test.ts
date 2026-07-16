@@ -14,7 +14,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { listarFichas } from '../storage';
 import { crearMedidasVacias, crearBocetoVacio } from '../../types/ficha';
-import { construirExportPayload, exportarTodasLasFichas } from '../export';
+import { construirExportPayload, exportarTodasLasFichas, exportarFichas } from '../export';
 
 const fichaDeEjemplo = {
   id: 'uuid-1',
@@ -27,6 +27,7 @@ const fichaDeEjemplo = {
   tiro: null,
   telas: [],
   colores: [],
+  notas: '',
   valorTotal: null,
   contextura: 'femenina' as const,
   boceto: crearBocetoVacio(),
@@ -61,5 +62,36 @@ describe('exportarTodasLasFichas', () => {
     jest.mocked(Sharing.isAvailableAsync).mockResolvedValueOnce(false);
 
     await expect(exportarTodasLasFichas()).rejects.toThrow();
+  });
+});
+
+describe('exportarFichas', () => {
+  it('con una sola ficha, usa el nombre de esa ficha en el archivo y exporta solo esa ficha', async () => {
+    await exportarFichas([fichaDeEjemplo]);
+
+    const [ruta, contenido] = jest.mocked(FileSystem.writeAsStringAsync).mock.calls.at(-1)!;
+    expect(ruta).toContain('file:///cache/');
+    expect(ruta).toContain('Ana_Pérez');
+    const payload = JSON.parse(contenido as string);
+    expect(payload.fichas).toEqual([fichaDeEjemplo]);
+    expect(Sharing.shareAsync).toHaveBeenCalled();
+  });
+
+  it('con varias fichas, usa un nombre genérico con la cantidad', async () => {
+    const otra = { ...fichaDeEjemplo, id: 'uuid-2', nombre: 'Bea Ruiz' };
+
+    await exportarFichas([fichaDeEjemplo, otra]);
+
+    const [ruta, contenido] = jest.mocked(FileSystem.writeAsStringAsync).mock.calls.at(-1)!;
+    expect(ruta).toContain('2fichas');
+    const payload = JSON.parse(contenido as string);
+    expect(payload.fichas).toHaveLength(2);
+    expect(Sharing.shareAsync).toHaveBeenCalled();
+  });
+
+  it('lanza error si no hay forma de compartir en el dispositivo', async () => {
+    jest.mocked(Sharing.isAvailableAsync).mockResolvedValueOnce(false);
+
+    await expect(exportarFichas([fichaDeEjemplo])).rejects.toThrow();
   });
 });

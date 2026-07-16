@@ -21,10 +21,13 @@ export function normalizarFicha(raw: any): Ficha {
   const boceto: Boceto =
     raw && raw.boceto && Array.isArray(raw.boceto.trazos) ? raw.boceto : { trazos: [] };
 
+  const notas: string = raw && typeof raw.notas === 'string' ? raw.notas : '';
+
   return {
     ...raw,
     contextura,
     boceto,
+    notas,
     schemaVersion: 2,
   };
 }
@@ -94,6 +97,14 @@ export async function eliminarFicha(id: string): Promise<void> {
   await AsyncStorage.removeItem(fichaKey(id));
   const indice = await obtenerIndice();
   await guardarIndice(indice.filter((existente) => existente !== id));
+}
+
+export async function eliminarFichas(ids: string[]): Promise<void> {
+  if (ids.length === 0) return;
+  await Promise.all(ids.map((id) => AsyncStorage.removeItem(fichaKey(id))));
+  const idsAEliminar = new Set(ids);
+  const indice = await obtenerIndice();
+  await guardarIndice(indice.filter((existente) => !idsAEliminar.has(existente)));
 }
 
 export async function duplicarFicha(id: string): Promise<Ficha> {

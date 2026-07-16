@@ -46,8 +46,8 @@ teléfono, porque en el entorno de construcción no hay simulador ni Expo Go.
 - [ ] Guardar una ficha **sin nombre** → debe mostrar error y no guardar.
 - [ ] Escribir texto en un campo de medida (numérico) → debe rechazarlo
       (el campo queda vacío), nunca guarda datos corruptos.
-- [ ] Confirmar visualmente que los **29 campos de medidas** están presentes y
-      editables, agrupados (Torso / Blusa y Mangas / Pantalón-Short).
+- [ ] Confirmar visualmente que los **31 campos de medidas** están presentes y
+      editables, agrupados (Torso / Blusa y Mangas / Pantalón, Short y Falda).
 
 ### Exportación
 - [ ] Con al menos 3 fichas guardadas, tocar **"Exportar todo"**.
@@ -80,7 +80,7 @@ Checklist manual en dispositivo para lo agregado en la v2: `contextura`,
 - [ ] Dejar el **Nombre vacío** y continuar: la ficha se crea con el nombre
       genérico **"Ficha sin nombre"**.
 - [ ] Dejar la **Fecha** sin tocar: se usa la fecha de **hoy** por defecto.
-- [ ] En el formulario, los campos de **Medidas** (los 29) y el campo **Tiro**
+- [ ] En el formulario, los campos de **Medidas** (los 31) y el campo **Tiro**
       muestran un sufijo fijo **"cm"** junto al input, que **no desaparece**
       al escribir un valor (es un texto aparte, no un placeholder).
 - [ ] Cambiar entre las pestañas **Ficha** y **Boceto** dentro del formulario:

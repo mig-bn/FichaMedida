@@ -14,6 +14,7 @@ import {
   listarFichas,
   actualizarFicha,
   eliminarFicha,
+  eliminarFichas,
   duplicarFicha,
   NuevaFichaInput,
 } from '../storage';
@@ -27,6 +28,7 @@ const datosBase: NuevaFichaInput = {
   tiro: null,
   telas: [],
   colores: [],
+  notas: '',
   valorTotal: null,
   contextura: 'femenina',
   boceto: crearBocetoVacio(),
@@ -182,6 +184,30 @@ describe('eliminarFicha', () => {
 
     expect(await obtenerFicha('uuid-1')).toBeNull();
     expect(await listarFichas()).toEqual([]);
+  });
+});
+
+describe('eliminarFichas', () => {
+  it('borra varias fichas y las quita del índice, dejando el resto intacto', async () => {
+    jest
+      .mocked(generarUUID)
+      .mockReturnValueOnce('uuid-1')
+      .mockReturnValueOnce('uuid-2')
+      .mockReturnValueOnce('uuid-3');
+    await crearFicha(datosBase);
+    await crearFicha({ ...datosBase, nombre: 'Bea Ruiz' });
+    await crearFicha({ ...datosBase, nombre: 'Carla Ruiz' });
+
+    await eliminarFichas(['uuid-1', 'uuid-3']);
+
+    expect(await obtenerFicha('uuid-1')).toBeNull();
+    expect(await obtenerFicha('uuid-3')).toBeNull();
+    const restantes = await listarFichas();
+    expect(restantes.map((f) => f.id)).toEqual(['uuid-2']);
+  });
+
+  it('no falla si el arreglo de ids está vacío', async () => {
+    await expect(eliminarFichas([])).resolves.toBeUndefined();
   });
 });
 

@@ -3,31 +3,33 @@ export type Medidas = {
   talleTrasero: number | null;
   espalda: number | null;
   busto: number | null;
-  cintura: number | null;
   cadera: number | null;
+  cintura: number | null;
   alturaBusto: number | null;
   separacionBusto: number | null;
+  anchoPecho: number | null;
+  anchoEspalda: number | null;
   contornoImperio: number | null;
-  altoImperio: number | null;
+  alturaImperio: number | null;
+  alturaCadera: number | null;
+  alturaRodilla: number | null;
+  largoBlusa: number | null;
+  largoPantalon: number | null;
+  largoShort: number | null;
+  largoPescador: number | null;
+  largoTorero: number | null;
+  largoFalda: number | null;
+  largoMangaLarga: number | null;
+  largoMangaCorta: number | null;
+  largoManga34: number | null;
+  puno: number | null;
+  puno34: number | null;
+  contornoBrazo: number | null;
   contornoStrapple: number | null;
-  contornoHombro: number | null;
   hombro: number | null;
   costado: number | null;
-  centroEspalda: number | null;
-  largoBlusa: number | null;
-  largoMangaCorta: number | null;
-  largoMangaLarga: number | null;
-  largoManga34: number | null;
-  largoShort: number | null;
-  largoPantalon: number | null;
-  alturaRodilla: number | null;
-  anchoRodilla: number | null;
-  anchoBotaSuperior: number | null;
-  anchoPunoSuperior: number | null;
-  contornoMusloSuperior: number | null;
-  anchoBotaInferior: number | null;
-  anchoPunoInferior: number | null;
-  contornoMusloInferior: number | null;
+  anchoBota: number | null;
+  contornoCuello: number | null;
 };
 
 export type Tela = { tipo: string; color?: string };
@@ -51,6 +53,7 @@ export type Ficha = {
   tiro: number | null;
   telas: Tela[];
   colores: string[];
+  notas: string;
   valorTotal: number | null;
   contextura: Contextura;
   boceto: Boceto;
@@ -74,31 +77,33 @@ export function crearMedidasVacias(): Medidas {
     talleTrasero: null,
     espalda: null,
     busto: null,
-    cintura: null,
     cadera: null,
+    cintura: null,
     alturaBusto: null,
     separacionBusto: null,
+    anchoPecho: null,
+    anchoEspalda: null,
     contornoImperio: null,
-    altoImperio: null,
+    alturaImperio: null,
+    alturaCadera: null,
+    alturaRodilla: null,
+    largoBlusa: null,
+    largoPantalon: null,
+    largoShort: null,
+    largoPescador: null,
+    largoTorero: null,
+    largoFalda: null,
+    largoMangaLarga: null,
+    largoMangaCorta: null,
+    largoManga34: null,
+    puno: null,
+    puno34: null,
+    contornoBrazo: null,
     contornoStrapple: null,
-    contornoHombro: null,
     hombro: null,
     costado: null,
-    centroEspalda: null,
-    largoBlusa: null,
-    largoMangaCorta: null,
-    largoMangaLarga: null,
-    largoManga34: null,
-    largoShort: null,
-    largoPantalon: null,
-    alturaRodilla: null,
-    anchoRodilla: null,
-    anchoBotaSuperior: null,
-    anchoPunoSuperior: null,
-    contornoMusloSuperior: null,
-    anchoBotaInferior: null,
-    anchoPunoInferior: null,
-    contornoMusloInferior: null,
+    anchoBota: null,
+    contornoCuello: null,
   };
 }
 
@@ -107,44 +112,46 @@ export const GRUPOS_MEDIDAS: { titulo: string; campos: { key: keyof Medidas; lab
     titulo: 'Torso',
     campos: [
       { key: 'talleDelantero', label: 'Talle Delantero' },
-      { key: 'talleTrasero', label: 'Talle Trasero' },
+      { key: 'talleTrasero', label: 'Talle Posterior' },
       { key: 'espalda', label: 'Espalda' },
       { key: 'busto', label: 'Busto' },
-      { key: 'cintura', label: 'Cintura' },
       { key: 'cadera', label: 'Cadera' },
+      { key: 'cintura', label: 'Cintura' },
       { key: 'alturaBusto', label: 'Altura Busto' },
       { key: 'separacionBusto', label: 'Separación Busto' },
+      { key: 'anchoPecho', label: 'Ancho Pecho' },
+      { key: 'anchoEspalda', label: 'Ancho Espalda' },
       { key: 'contornoImperio', label: 'Contorno Imperio' },
-      { key: 'altoImperio', label: 'Alto Imperio' },
+      { key: 'alturaImperio', label: 'Altura Imperio' },
+      { key: 'alturaCadera', label: 'Altura Cadera' },
       { key: 'contornoStrapple', label: 'Contorno Strapple' },
-      { key: 'contornoHombro', label: 'Contorno Hombro' },
       { key: 'hombro', label: 'Hombro' },
       { key: 'costado', label: 'Costado' },
-      { key: 'centroEspalda', label: 'Centro Espalda' },
+      { key: 'contornoCuello', label: 'Contorno de Cuello' },
     ],
   },
   {
     titulo: 'Blusa y Mangas',
     campos: [
       { key: 'largoBlusa', label: 'Largo Blusa' },
-      { key: 'largoMangaCorta', label: 'Largo Manga Corta' },
-      { key: 'largoMangaLarga', label: 'Largo Manga Larga' },
-      { key: 'largoManga34', label: 'Largo Manga 3/4' },
+      { key: 'largoMangaLarga', label: 'Manga Larga' },
+      { key: 'largoMangaCorta', label: 'Manga Corta' },
+      { key: 'largoManga34', label: 'Manga 3/4' },
+      { key: 'puno', label: 'Puño' },
+      { key: 'puno34', label: 'Puño 3/4' },
+      { key: 'contornoBrazo', label: 'Contorno Brazo' },
     ],
   },
   {
-    titulo: 'Pantalón / Short',
+    titulo: 'Pantalón, Short y Falda',
     campos: [
-      { key: 'largoShort', label: 'Largo Short' },
       { key: 'largoPantalon', label: 'Largo Pantalón' },
+      { key: 'largoShort', label: 'Largo Short' },
+      { key: 'largoPescador', label: 'Largo Pescador' },
+      { key: 'largoTorero', label: 'Largo Torero' },
+      { key: 'largoFalda', label: 'Largo Falda' },
       { key: 'alturaRodilla', label: 'Altura Rodilla' },
-      { key: 'anchoRodilla', label: 'Ancho Rodilla' },
-      { key: 'anchoBotaSuperior', label: 'Ancho Bota (1)' },
-      { key: 'anchoPunoSuperior', label: 'Ancho Puño (1)' },
-      { key: 'contornoMusloSuperior', label: 'Contorno de Muslo (1)' },
-      { key: 'anchoBotaInferior', label: 'Ancho Bota (2)' },
-      { key: 'anchoPunoInferior', label: 'Ancho Puño (2)' },
-      { key: 'contornoMusloInferior', label: 'Contorno de Muslo (2)' },
+      { key: 'anchoBota', label: 'Ancho Bota' },
     ],
   },
 ];

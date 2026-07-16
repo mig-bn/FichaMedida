@@ -7,6 +7,7 @@ import {
   Pressable,
   StyleSheet,
   Alert,
+  Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -21,6 +22,9 @@ import {
 } from '../services/storage';
 import { MedidasTable } from './MedidasTable';
 import { BocetoCanvas } from './BocetoCanvas';
+import { ModalTela } from './ModalTela';
+import { imprimirFicha, guardarPdfFicha } from '../services/pdf';
+import { mensajeDeError } from '../utils/errores';
 
 type Props = {
   ficha: Ficha | null;
@@ -43,6 +47,7 @@ export function FichaForm({ ficha, onGuardado, onEliminado, inicial }: Props) {
   const [telas, setTelas] = useState<Tela[]>(ficha?.telas ?? []);
   const [colores, setColores] = useState<string[]>(ficha?.colores ?? []);
   const [tiroTexto, setTiroTexto] = useState(ficha?.tiro != null ? String(ficha.tiro) : '');
+  const [notas, setNotas] = useState(ficha?.notas ?? '');
   const [valorTotalTexto, setValorTotalTexto] = useState(
     ficha?.valorTotal != null ? String(ficha.valorTotal) : ''
   );
@@ -52,6 +57,30 @@ export function FichaForm({ ficha, onGuardado, onEliminado, inicial }: Props) {
   const [boceto, setBoceto] = useState<Boceto>(ficha?.boceto ?? crearBocetoVacio());
   const [errorNombre, setErrorNombre] = useState(false);
   const [guardando, setGuardando] = useState(false);
+  const [modalTelaVisible, setModalTelaVisible] = useState(false);
+  const [indiceTelaEditando, setIndiceTelaEditando] = useState<number | null>(null);
+
+  function abrirModalAgregarTela() {
+    setIndiceTelaEditando(null);
+    setModalTelaVisible(true);
+  }
+
+  function abrirModalEditarTela(indice: number) {
+    setIndiceTelaEditando(indice);
+    setModalTelaVisible(true);
+  }
+
+  function aceptarTela(tela: Tela) {
+    if (indiceTelaEditando === null) {
+      setTelas([...telas, tela]);
+    } else {
+      const copia = [...telas];
+      copia[indiceTelaEditando] = tela;
+      setTelas(copia);
+    }
+    setModalTelaVisible(false);
+    setIndiceTelaEditando(null);
+  }
 
   async function guardar() {
     if (!esNombreValido(nombre)) {
@@ -71,6 +100,7 @@ export function FichaForm({ ficha, onGuardado, onEliminado, inicial }: Props) {
       tiro: parsearMedida(tiroTexto),
       telas: telas.filter((t) => t.tipo.trim() !== ''),
       colores: colores.filter((c) => c.trim() !== ''),
+      notas: notas.trim(),
       valorTotal: parsearMedida(valorTotalTexto),
       contextura,
       boceto,
@@ -99,11 +129,43 @@ export function FichaForm({ ficha, onGuardado, onEliminado, inicial }: Props) {
     }
   }
 
+  function generarPdf() {
+    if (!ficha) return;
+    Alert.alert('Generar PDF', ficha.nombre, [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Imprimir',
+        onPress: async () => {
+          try {
+            await imprimirFicha(ficha);
+          } catch (e) {
+            console.error(e);
+            Alert.alert('Error', `No se pudo generar el PDF para imprimir.\n${mensajeDeError(e)}`);
+          }
+        },
+      },
+      {
+        text: 'Guardar',
+        onPress: async () => {
+          try {
+            await guardarPdfFicha(ficha);
+            if (Platform.OS === 'android') {
+              Alert.alert('PDF guardado', 'Búscalo en la carpeta "FichasApp" dentro de la carpeta que elegiste.');
+            }
+          } catch (e) {
+            console.error(e);
+            Alert.alert('Error', `No se pudo generar o guardar el PDF.\n${mensajeDeError(e)}`);
+          }
+        },
+      },
+    ]);
+  }
+
   function confirmarEliminar() {
     if (!ficha) return;
     Alert.alert(
       'Eliminar ficha',
-      '¿Seguro que quieres eliminar esta ficha? Esta acción no se puede deshacer.',
+      '¿Estás seguro de eliminar esta ficha? Una vez eliminada no se podrá recuperar.',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
@@ -224,35 +286,30 @@ export function FichaForm({ ficha, onGuardado, onEliminado, inicial }: Props) {
           <Text style={styles.tituloSeccion}>Medidas</Text>
           <MedidasTable medidas={medidas} onChange={setMedidas} />
 
+          <Text style={styles.etiqueta}>Tiro</Text>
+          <View style={styles.grupoInput}>
+            <TextInput
+              style={[styles.input, styles.inputTiro]}
+              keyboardType="decimal-pad"
+              value={tiroTexto}
+              onChangeText={setTiroTexto}
+            />
+            <Text style={styles.unidad}>cm</Text>
+          </View>
+
           <Text style={styles.tituloSeccion}>Telas</Text>
           {telas.map((tela, indice) => (
             <View key={indice} style={styles.filaLista}>
-              <TextInput
-                style={[styles.input, styles.inputLista]}
-                placeholder="Tipo de tela"
-                value={tela.tipo}
-                onChangeText={(t) => {
-                  const copia = [...telas];
-                  copia[indice] = { ...copia[indice], tipo: t };
-                  setTelas(copia);
-                }}
-              />
-              <TextInput
-                style={[styles.input, styles.inputLista]}
-                placeholder="Color (opcional)"
-                value={tela.color ?? ''}
-                onChangeText={(t) => {
-                  const copia = [...telas];
-                  copia[indice] = { ...copia[indice], color: t };
-                  setTelas(copia);
-                }}
-              />
+              <Pressable style={styles.telaItem} onPress={() => abrirModalEditarTela(indice)}>
+                <Text style={styles.telaTipo}>{tela.tipo}</Text>
+                {tela.color ? <Text style={styles.telaColor}>{tela.color}</Text> : null}
+              </Pressable>
               <Pressable onPress={() => setTelas(telas.filter((_, i) => i !== indice))}>
                 <Text style={styles.quitar}>Quitar</Text>
               </Pressable>
             </View>
           ))}
-          <Pressable onPress={() => setTelas([...telas, { tipo: '', color: '' }])}>
+          <Pressable onPress={abrirModalAgregarTela}>
             <Text style={styles.agregar}>+ Agregar tela</Text>
           </Pressable>
 
@@ -278,16 +335,16 @@ export function FichaForm({ ficha, onGuardado, onEliminado, inicial }: Props) {
             <Text style={styles.agregar}>+ Agregar color</Text>
           </Pressable>
 
-          <Text style={styles.etiqueta}>Tiro</Text>
-          <View style={styles.grupoInput}>
-            <TextInput
-              style={[styles.input, styles.inputTiro]}
-              keyboardType="decimal-pad"
-              value={tiroTexto}
-              onChangeText={setTiroTexto}
-            />
-            <Text style={styles.unidad}>cm</Text>
-          </View>
+          <Text style={styles.etiqueta}>Notas</Text>
+          <TextInput
+            style={[styles.input, styles.inputNotas]}
+            value={notas}
+            onChangeText={setNotas}
+            placeholder="Notas sobre la persona o el trabajo (opcional)"
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+          />
 
           <Text style={styles.etiqueta}>Valor Total</Text>
           <TextInput
@@ -300,14 +357,19 @@ export function FichaForm({ ficha, onGuardado, onEliminado, inicial }: Props) {
           {botonGuardar}
 
           {ficha && (
-            <View style={styles.filaAcciones}>
-              <Pressable style={styles.botonSecundario} onPress={duplicar}>
-                <Text style={styles.botonSecundarioTexto}>Duplicar ficha</Text>
+            <>
+              <Pressable style={styles.botonPdf} onPress={generarPdf}>
+                <Text style={styles.botonSecundarioTexto}>Generar PDF</Text>
               </Pressable>
-              <Pressable style={styles.botonEliminar} onPress={confirmarEliminar}>
-                <Text style={styles.botonEliminarTexto}>Eliminar ficha</Text>
-              </Pressable>
-            </View>
+              <View style={styles.filaAcciones}>
+                <Pressable style={styles.botonSecundario} onPress={duplicar}>
+                  <Text style={styles.botonSecundarioTexto}>Duplicar ficha</Text>
+                </Pressable>
+                <Pressable style={styles.botonEliminar} onPress={confirmarEliminar}>
+                  <Text style={styles.botonEliminarTexto}>Eliminar ficha</Text>
+                </Pressable>
+              </View>
+            </>
           )}
         </ScrollView>
       ) : (
@@ -318,6 +380,16 @@ export function FichaForm({ ficha, onGuardado, onEliminado, inicial }: Props) {
           {botonGuardar}
         </View>
       )}
+
+      <ModalTela
+        visible={modalTelaVisible}
+        telaInicial={indiceTelaEditando !== null ? telas[indiceTelaEditando] : null}
+        onAceptar={aceptarTela}
+        onCancelar={() => {
+          setModalTelaVisible(false);
+          setIndiceTelaEditando(null);
+        }}
+      />
     </View>
   );
 }
@@ -357,10 +429,24 @@ const styles = StyleSheet.create({
   inputError: { borderColor: '#d33' },
   grupoInput: { flexDirection: 'row', alignItems: 'center' },
   inputTiro: { flex: 1 },
+  inputNotas: { minHeight: 96 },
   unidad: { fontSize: 15, color: '#666', marginLeft: 6 },
   textoError: { color: '#d33', fontSize: 13, marginTop: 4 },
   filaLista: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
   inputLista: { flex: 1 },
+  telaItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  telaTipo: { fontSize: 16, fontWeight: '600' },
+  telaColor: { fontSize: 14, color: '#666' },
   quitar: { color: '#d33', fontSize: 14 },
   agregar: { color: '#2f6fed', fontSize: 15, marginBottom: 16 },
   botonGuardar: {
@@ -372,7 +458,15 @@ const styles = StyleSheet.create({
   },
   botonGuardarDeshabilitado: { opacity: 0.6 },
   botonGuardarTexto: { color: '#fff', fontSize: 17, fontWeight: '700' },
-  filaAcciones: { flexDirection: 'row', gap: 12, marginTop: 16 },
+  filaAcciones: { flexDirection: 'row', gap: 12, marginTop: 12 },
+  botonPdf: {
+    marginTop: 16,
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#2f6fed',
+    alignItems: 'center',
+  },
   botonSecundario: {
     flex: 1,
     padding: 12,
